@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vectores de Ataque en la Nube — Lucas Villagra</title>
+<meta name="description" content="Investigación técnica sobre vectores de ataque en infraestructura cloud, basada en NIST SP 500-292.">
+<style>
+  :root{
+    --bg:#0D1117;
+    --bg-raised:#111826;
+    --line:#1E2836;
+    --cyan:#00E5FF;
+    --violet:#A78BFA;
+    --green:#22C55E;
+    --text:#E6EDF3;
+    --text-dim:#8B98A9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+    line-height:1.5;
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(0,229,255,0.07), transparent 40%),
+      radial-gradient(circle at 85% 92%, rgba(167,139,250,0.07), transparent 40%);
+  }
+  a{color:inherit;}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px;}
+
+  /* ---- Nav ---- */
+  header{
+    position:sticky;top:0;z-index:10;
+    background:rgba(13,17,23,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  header .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:0.2px;}
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+  nav a{
+    text-decoration:none;color:var(--text-dim);font-size:14px;margin-left:22px;
+    transition:color .2s;
+  }
+  nav a:hover{color:var(--cyan);}
+
+  /* ---- Hero ---- */
+  .hero{padding:96px 0 72px;border-bottom:1px solid var(--line);}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:12.5px;letter-spacing:1.2px;text-transform:uppercase;
+    color:var(--cyan);border:1px solid rgba(0,229,255,0.35);
+    padding:6px 12px;border-radius:999px;margin-bottom:22px;
+  }
+  h1{
+    font-size:clamp(32px,5vw,50px);
+    line-height:1.12;font-weight:800;letter-spacing:-0.5px;
+    background:linear-gradient(100deg,#F2F6FA 40%,var(--cyan) 75%,var(--violet) 100%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    max-width:720px;
+  }
+  .hero p{
+    margin-top:20px;color:var(--text-dim);font-size:17px;max-width:600px;
+  }
+  .hero-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:12px 20px;border-radius:8px;font-size:14.5px;font-weight:600;
+    text-decoration:none;transition:transform .15s, box-shadow .15s;
+  }
+  .btn-primary{background:var(--cyan);color:#04121A;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,229,255,0.25);}
+  .btn-ghost{border:1px solid var(--line);color:var(--text);}
+  .btn-ghost:hover{border-color:var(--violet);color:var(--violet);}
+
+  /* ---- Reference strip ---- */
+  .reference{
+    padding:22px 0;border-bottom:1px solid var(--line);
+    color:var(--text-dim);font-size:13.5px;
+  }
+  .reference b{color:var(--text);}
+
+  /* ---- Docs section ---- */
+  section{padding:64px 0;}
+  h2{font-size:22px;font-weight:700;margin-bottom:8px;}
+  .section-sub{color:var(--text-dim);font-size:14.5px;margin-bottom:36px;max-width:560px;}
+
+  .doc-grid{display:grid;grid-template-columns:1fr;gap:14px;}
+  .doc{
+    display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:18px;
+    background:var(--bg-raised);border:1px solid var(--line);
+    border-radius:10px;padding:20px 22px;
+    text-decoration:none;color:var(--text);
+    transition:border-color .2s, transform .2s;
+  }
+  .doc:hover{border-color:var(--cyan);transform:translateX(4px);}
+  .doc .icon{
+    width:44px;height:44px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:19px;background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.25);
+  }
+  .doc .icon.violet{background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.3);}
+  .doc .icon.green{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.3);}
+  .doc-title{font-weight:600;font-size:15.5px;}
+  .doc-desc{color:var(--text-dim);font-size:13.5px;margin-top:3px;}
+  .doc-arrow{color:var(--text-dim);font-size:18px;}
+  .doc:hover .doc-arrow{color:var(--cyan);}
+
+  /* ---- Disclaimer ---- */
+  .disclaimer{
+    background:var(--bg-raised);border:1px solid var(--line);
+    border-left:3px solid var(--violet);
+    border-radius:8px;padding:18px 20px;font-size:13.5px;color:var(--text-dim);
+  }
+  .disclaimer b{color:var(--text);}
+
+  /* ---- Footer ---- */
+  footer{border-top:1px solid var(--line);padding:36px 0;}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center;}
+  .foot-links a{font-size:13.5px;color:var(--text-dim);text-decoration:none;margin-left:18px;}
+  .foot-links a:hover{color:var(--cyan);}
+  .license-badge{
+    font-size:12px;color:var(--text-dim);
+    display:inline-flex;align-items:center;gap:6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> Lucas Villagra</div>
+    <nav>
+      <a href="#docs">Documentos</a>
+      <a href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://portafolio.lucaslean1806.workers.dev" target="_blank" rel="noopener">Portfolio</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow">● Investigación · Cloud Security</span>
+    <h1>Vectores de ataque y ejecución de ataques en tecnologías de la nube</h1>
+    <p>Relevamiento técnico de las superficies de ataque más comunes en infraestructura cloud: agotamiento de recursos, activos mal configurados, escalamiento de privilegios y robo de credenciales — con un caso práctico aplicado sobre un modelo IaaS.</p>
+    <div class="hero-links">
+      <a class="btn btn-primary" href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube" target="_blank" rel="noopener">Ver repositorio en GitHub →</a>
+      <a class="btn btn-ghost" href="#docs">Explorar documentos</a>
+    </div>
+  </div>
+</section>
+
+<div class="reference">
+  <div class="wrap">
+    Referencia principal: <b>NIST Special Publication 500-292</b> — NIST Cloud Computing Reference Architecture
+  </div>
+</div>
+
+<section id="docs">
+  <div class="wrap">
+    <h2>Documentos de la investigación</h2>
+    <p class="section-sub">Cinco documentos, cada uno cubriendo una categoría distinta de riesgo en entornos cloud.</p>
+
+    <div class="doc-grid">
+
+      <a class="doc" href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube/blob/main/Agotamiento_de_Recursos_y_DoS.docx" target="_blank" rel="noopener">
+        <div class="icon">⚡</div>
+        <div>
+          <div class="doc-title">Agotamiento de Recursos y DoS</div>
+          <div class="doc-desc">Saturación de recursos compartidos y denegación de servicio en entornos multi-tenant.</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+
+      <a class="doc" href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube/blob/main/Ataques_contra_Activos_en_la_Nube_Mal_Configurados.docx" target="_blank" rel="noopener">
+        <div class="icon violet">☁</div>
+        <div>
+          <div class="doc-title">Activos en la Nube Mal Configurados</div>
+          <div class="doc-desc">Errores de configuración como vector de exposición de datos y servicios.</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+
+      <a class="doc" href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube/blob/main/Escalamiento_de_Privilegios.docx" target="_blank" rel="noopener">
+        <div class="icon green">▲</div>
+        <div>
+          <div class="doc-title">Escalamiento de Privilegios</div>
+          <div class="doc-desc">Técnicas de elevación de privilegios en arquitecturas cloud e IAM.</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+
+      <a class="doc" href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube/blob/main/Recoleccion_de_Credenciales.docx" target="_blank" rel="noopener">
+        <div class="icon">🔑</div>
+        <div>
+          <div class="doc-title">Recolección de Credenciales</div>
+          <div class="doc-desc">Vectores de robo y abuso de credenciales en servicios cloud.</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+
+      <a class="doc" href="https://github.com/Lucas18062025/Investigaci-n-de-Vectores-de-Ataque-en-la-Nube/blob/main/Caso_Practico_Pixel_Paradise_IaaS.docx" target="_blank" rel="noopener">
+        <div class="icon violet">🎮</div>
+        <div>
+          <div class="doc-title">Caso práctico: Pixel Paradise (IaaS)</div>
+          <div class="doc-desc">Análisis de riesgo aplicado a una empresa gaming ficticia sobre modelo IaaS.</div>
+        </div>
+        <div class="doc-arrow">→</div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0;">
+  <div class="wrap">
+    <div class="disclaimer">
+      <b>⚠ Alcance:</b> todo el contenido es de carácter educativo/investigativo. No incluye pruebas de concepto ejecutables contra sistemas de terceros ni credenciales reales.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="license-badge">© 2026 Lucas Villagra · CC BY-NC-SA 4.0</span>
+    <div class="foot-links">
+      <a href="https://linkedin.com/in/lucas-villagra-cybersecurity" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/Lucas18062025" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://portafolio.lucaslean1806.workers.dev" target="_blank" rel="noopener">Portfolio</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
