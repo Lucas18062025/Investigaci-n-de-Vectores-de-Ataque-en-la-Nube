@@ -17,5 +17,5 @@ NIST Special Publication 500-292 — *NIST Cloud Computing Reference Architectur
 Todo el contenido es de carácter educativo/investigativo. No incluye pruebas
 de concepto ejecutables contra sistemas de terceros ni credenciales reales.
 
-## Autor
+##
 Lucas Villagra — [LinkedIn](https://linkedin.com/in/lucas-villagra-cybersecurity) | [Portfolio](https://portafolio.lucaslean1806.workers.dev)
