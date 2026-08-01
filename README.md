@@ -60,9 +60,6 @@ Por favor evita publicar exploits activos sin contexto defensivo y sin consentim
 
 Este proyecto sigue un enfoque responsable: cualquier PoC o prueba debe ser acompañada de explicaciones y mitigaciones. No uses este material para actividades no autorizadas. Si encuentras información sensible o vulnerabilidades reales, sigue un proceso de divulgación responsable.
 
-## Licencia
-
-Incluye aquí la licencia del proyecto (por ejemplo, MIT, CC BY-SA, etc.). Si no estás seguro, agrega un archivo LICENSE y elige una licencia apropiada.
 
 ## Contacto
 
